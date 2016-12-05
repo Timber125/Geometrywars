@@ -1,0 +1,28 @@
+SHOP 
+STATS 
+puntensysteem
+
+
+
+
+
+
+
+DATABASE (highscores singleplayer)
+Collisions triangles (Collidable.java)
+
+Shuttles afwerken
+Engine voorzien van spawncapaciteiten
+
+Levels 
+"friendly" AI's 
+
+informatiemodellering
+zowel programma als database
+
+
+
+
+
+
+
