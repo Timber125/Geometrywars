@@ -16,7 +16,7 @@ import java.util.Random;
  * @author timber
  */
 public class LevelManager {
-    private boolean debug = true;
+    private boolean debug = false;
     private int current_level = 1;
     
     private final ArrayList<String>[] enemies = new ArrayList[3];
