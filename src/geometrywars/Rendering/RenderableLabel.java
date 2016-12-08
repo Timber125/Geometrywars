@@ -7,6 +7,7 @@ package geometrywars.Rendering;
 
 import javafx.application.Platform;
 import javafx.scene.control.Label;
+import javafx.scene.paint.Color;
 
 /**
  *
@@ -23,6 +24,7 @@ public class RenderableLabel extends Renderable{
         super(ID, xPos, yPos);
         this.view = new RenderObject();
         this.view.setView(new Label(text));
+        ((Label)this.view.getView()).setTextFill(Color.web("#ffff00"));
     }
     
     @Override

@@ -5,7 +5,10 @@
  */
 package geometrywars.Game.Logics;
 
+import geometrywars.Game.Objects.Gun;
+import geometrywars.Game.Objects.SpaceLaserGun;
 import geometrywars.Rendering.CollidableImage;
+import geometrywars.Rendering.Engine;
 import geometrywars.Rendering.HitBox;
 import geometrywars.Rendering.ViewPane;
 import javafx.scene.image.Image;
@@ -18,6 +21,24 @@ public class MovingCollidableImage extends CollidableImage{
 
     public Direction direction;
     public double speed = 2.00;
+    private int health = 100;
+    private int armor = 0;
+    private Gun gun = new SpaceLaserGun();
+    public void setGun(Gun g){
+        this.gun = g;
+    }
+    
+    public void setHealth(int i){
+        this.health = i;
+    }
+    
+    public void setArmor(int i){
+        this.armor = i;
+    }
+    
+    public Gun getGun(){return gun;}
+    public int getHealth(){return health;}
+    public int getArmor(){return armor;}
     
     public MovingCollidableImage(long ID, int xPos, int yPos, HitBox hb, String filename, Direction d) {
         super(ID, xPos, yPos, hb, filename);
@@ -53,4 +74,5 @@ public class MovingCollidableImage extends CollidableImage{
     public void setSpeed(double spd){
         this.speed = spd;
     }
+    
 }

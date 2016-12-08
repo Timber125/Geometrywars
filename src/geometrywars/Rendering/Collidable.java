@@ -22,7 +22,7 @@ public abstract class Collidable extends Renderable
         return hitbox;
     }
     
-    public abstract void onCollide();
+    public abstract void onCollide(Collidable other);
     
     public abstract Point getCenter();
     
@@ -115,8 +115,16 @@ public abstract class Collidable extends Renderable
                 
         
     }
-
+    // ONLY TRIANGLES WITH NORTH_DIRECTION
     private boolean circle_triangle_collide(Collidable c1, Collidable c2) {
+        CircularHitBox circle = (CircularHitBox) c1.getHitBox();
+        TriangularHitBox triangle = (TriangularHitBox) c2.getHitBox();
+        
+        int cX = c1.xPos;
+        int cY = c1.yPos;
+        int tX = c2.xPos;
+        int tY = c2.yPos;
+        // Damn, teveel maths, tis voor de volgende build.
         return false;
     }
 

@@ -8,15 +8,22 @@ package geometrywars.Rendering;
 import geometrywars.Control.InputBuffer;
 import geometrywars.Control.InputHandler;
 import geometrywars.Control.MouseHandler;
+import geometrywars.Game.LevelManager;
 import geometrywars.Game.Logics.Direction;
+import geometrywars.Game.Logics.GameStats;
 import geometrywars.Game.Logics.MovingCollidableImage;
 import geometrywars.Game.Logics.SimpleDirectionPicker;
 import geometrywars.Game.Objects.Bullet;
+import geometrywars.Game.Objects.Enemy;
+import geometrywars.Game.Objects.Gun;
 import geometrywars.Game.Objects.Player;
+import geometrywars.Game.Objects.ShuttleThree;
+import geometrywars.Game.Objects.ShuttleTwo;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -30,6 +37,9 @@ public class Engine {
     
     
     private boolean global_debugmode = false;
+    
+   
+    
     /* 
     
         Ideally we don't want to check for collisions with non-collideable objects.
@@ -51,6 +61,16 @@ public class Engine {
     public HashMap<Long, Renderable> foreground_layer3 = new HashMap<>();
     
     private boolean paused = false;
+    
+    private LevelManager levelManager;
+    private GameStats gamestats;
+    public Engine (){
+        levelManager = new LevelManager();
+        gamestats = new GameStats();
+        initGameStats();
+    }
+    
+    
     
     // Look in all hashmaps with or without suspected layer given
     public Renderable find(Long id){
@@ -81,6 +101,18 @@ public class Engine {
         if(foreground_layer3.containsKey(id)) return foreground_layer3;
         return null;
     }
+
+    public void gameOver() {
+        spawnLabel(RenderLevel.BACKGROUND, 300, 300, "Game Over! You scored " + findPlayer().getPoints() + " points.");
+        try {
+            // Leave 50 ms to let the engine have one more loop, so health can be updated to zero. 
+            // This would otherwise leave some confusion to the player, as he would never be sure he actually hit 0 hitpoins.
+            Thread.sleep(50);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        active = false;
+    }
     
     public enum RenderLevel {
         BACKGROUND(0), 
@@ -105,6 +137,12 @@ public class Engine {
     
         ID 1L = player1
         ID 2L = player2
+        ID 3L = Label for player1 points.
+        ID 4L = Label for player1 health.
+        ID 5L = Label for player1 armor.
+        ID 6L = Label for player1 gun (& dmg / bullet) 
+        ID 7L = Label for alltime highscore (wait for database to implement)
+        
     */
     
     
@@ -154,7 +192,7 @@ public class Engine {
     private void shootPlayer(Player pl){
          long now = System.currentTimeMillis();
          long lastShot = pl.last_shot;
-         long treshold = Math.round(1000 / pl.att_speed);
+         long treshold = Math.round(1000 / pl.getGun().getSpeed());
          long delta = now - pl.last_shot; // > 0
          
          if(treshold < delta){
@@ -163,7 +201,7 @@ public class Engine {
              Point player_center = pl.getCenter();
              if(global_debugmode) System.out.println("PLAYER X Y [" + pl.xPos + "] [" + pl.yPos + "]");
              if(global_debugmode) System.out.println("CENTER X Y [" + player_center.X + "] [" + player_center.Y + "]");
-             spawnBullet(player_center.X, player_center.Y, new Direction(player_center.X, player_center.Y, mousehandler.getLocation().sceneX, mousehandler.getLocation().sceneY), pl);
+             spawnBullet(player_center.X, player_center.Y, new Direction(player_center.X, player_center.Y, mousehandler.getLocation().sceneX, mousehandler.getLocation().sceneY), Player.class, pl.getGun());
          }else{
              // DONT SHOOT, WAIT
          }
@@ -176,6 +214,33 @@ public class Engine {
     */
     private synchronized long getNextIdSafely(){
         return idcounter ++;
+    }
+    
+    /*
+        Get a point on the screen where it is safe to spawn an enemy, 
+        Fair to say noone would like an enemy to spawn on top of the player, killing him/her instantly based on randomness of spawnpoints. 
+        
+    */
+    
+    public Point getSafeSpawnCoord(double mindistance){
+        Point p = generateRandomCoord();
+        while(!isSafeSpawnCoord(p, mindistance)){
+            p = generateRandomCoord();
+        }
+        return p;
+    }
+    private Point generateRandomCoord(){
+        Random r = new Random();
+        return new Point(r.nextInt(view.getObjectBounds().X), r.nextInt(view.getObjectBounds().Y));
+    }
+    private boolean isSafeSpawnCoord(Point p, double minDistance){
+        Player player = findPlayer();
+        int xp = player.xPos;
+        int yp = player.yPos;
+        
+        double distance = Math.sqrt(Math.pow(Math.abs(p.X - xp), 2) + Math.pow(Math.abs(p.Y - yp), 2));
+        if(distance > minDistance) return true;
+        else return false;
     }
     
     /*
@@ -197,13 +262,17 @@ public class Engine {
                         public void run() {
                             Player p = findPlayer();
                             actOnInput(p);
+                            updateGameStats(p);
                             
                             if(!paused){
+                                spawnEnemy(levelManager.spawn());
                                 shootPlayer(p);
                                 checkCollisions();
                                 updateAllObj();
                             }
                         }
+
+                        
 
                        
                         
@@ -254,10 +323,18 @@ public class Engine {
         
     }
     
-    
-    private void removeObject(Renderable r){
+    // in the case of a bullet hitting 2 enemies at the exact moment, it will try to remove itself twice. 
+    // The "wanted" behaviour is that it kills both enemies before killing the bullet.
+    // We have this behaviour, but the problem is that the engine will try to remove the bullet twice. 
+    // This will actually not cause any problems! So we easily solve this by throwing nullpointerexceptions
+    // This improves the computational time for removeObject, 
+    // as it does not need to check whether the object is actually in the list..
+    // Compare this to a list.remove -> we don't need to check if the function returned true, 
+    // If it returns false the object will not be in the list anyway, which is the wanted result. 
+    // Here, we do exactly the same. Except, it will not return false, but will throw a nullpointer. 
+    // This explains the throwing of nullpointerexceptions.
+    public void removeObject(Renderable r) throws NullPointerException{
         Long id = r.ID;
-        r.kill();
         view.getChildren().remove(r.getView());
         locate(id).remove(id);        
     }
@@ -283,81 +360,25 @@ public class Engine {
                 
                 if(c1 instanceof Bullet){
                     Bullet b = (Bullet) c1;
-                    if(b.isfriendly(c2.ID)) continue;
+                    if(b.isfriendly(c2)) continue;
                 }
                 
                 if(c2 instanceof Bullet){
                     Bullet b = (Bullet) c2;
-                    if(b.isfriendly(c1.ID)) continue;
+                    if(b.isfriendly(c1)) continue;
                 }
                 
                 
                 if(c1.collidesWith(c2)){
-                    c1.onCollide();
-                    c2.onCollide();
+                    c1.onCollide(c2);
+                    c2.onCollide(c1);
                 }
             }
         }
     }
-    /*
-    private synchronized void updateAllObjects(){
-        // Render background
-        boolean debugmode_updates = global_debugmode;
-        
-        for (Renderable r : background_layer0.values()){
-            
-            if(view.inBounds(r)) r.update(view);
-            else removeObject(r);
-            
-            if(debugmode_updates){
-                System.out.println("[renderlvl 0] Updated " + r.getClass() + " with id " + r.ID);
-                System.out.flush();
-            }
-            
-        }
-        
-        // Render game objects that do not collide 
-        for (Renderable r : game_nocollision_layer1.values()){
-            if(view.inBounds(r)) r.update(view);
-            else game_nocollision_layer1.remove(r.ID);
-            
-            if(debugmode_updates){
-                System.out.println("[renderlvl 1] Updated " + r.getClass() + " with id " + r.ID);
-                System.out.flush();
-            }
-        }
-        
-        // Render game objects that do collide (after the non-collides, so messages e.g. won't overlay the important collideables. 
-        for (Renderable r : game_collision_layer2.values()){
-            if(view.inBounds(r)) r.update(view);
-            else game_collision_layer2.remove(r.ID);
-            if(debugmode_updates){
-                System.out.println("[renderlvl 2] Updated " + r.getClass() + " with id " + r.ID);
-                System.out.flush();
-            }
-        }
-        
-        // Render game foreground
-        for (Renderable r : foreground_layer3.values()){
-            if(view.inBounds(r)) r.update(view);
-            else foreground_layer3.remove(r.ID);
-            
-            if(debugmode_updates){
-                System.out.println("[renderlvl 3] Updated " + r.getClass() + " with id " + r.ID);
-                System.out.flush();
-            }
-        }
-    */
-        /*for(Renderable r : objects.values()){
-            r.update();
-            System.out.println("Updated " + r.getClass() + " with id " + r.ID);
-            System.out.flush();
-        }*/
-        /*System.out.println("updated");
-    }*/
     
     /*
-        Controlled access?
+        Controlled access
     */
     
     public void start(){
@@ -379,21 +400,27 @@ public class Engine {
         addToRenderLevel(RenderLevel.COLLIDE, nextID, ci);
         view.getChildren().add(ci.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d){
+    public void spawnBullet(int xPos, int yPos, Direction d, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d);
+        Bullet b = new Bullet(nextID, xPos, yPos, d, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d, Collidable friendly){
+    public void spawnBullet(int xPos, int yPos, Direction d, Collidable friendly, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly);
+        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d, Collection<Collidable> friendly){
+    public void spawnBullet(int xPos, int yPos, Direction d, Collection<Collidable> friendly, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly);
+        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
+        view.getChildren().add(b.getView());
+    }
+    public void spawnBullet(int xPos, int yPos, Direction d, Class friendly, Gun spawner){
+        long nextID = getNextIdSafely();
+        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
@@ -424,8 +451,37 @@ public class Engine {
         Engine.engine.addToRenderLevel(RenderLevel.COLLIDE, PLAYER1_ID, p1);
         view.getChildren().add(p1.getView());
     }
-
     
+    public void spawnEnemy(String enemy){
+        if(enemy.equals("none")) return;
+        else switch (enemy){
+            case("ShuttleTwo"):{
+                long nextID = getNextIdSafely();
+                Point p = getSafeSpawnCoord(150);
+                ShuttleTwo en = new ShuttleTwo(nextID);
+                addToRenderLevel(RenderLevel.COLLIDE, nextID, en);
+                view.getChildren().add(en.getView());
+                return;
+            }
+            case("ShuttleThree"):{
+                long nextID = getNextIdSafely();
+                Point p = getSafeSpawnCoord(150);
+                ShuttleThree en = new ShuttleThree(nextID);
+                addToRenderLevel(RenderLevel.COLLIDE, nextID, en);
+                view.getChildren().add(en.getView());
+                return;
+            }
+            default:{
+                System.out.println("[SEVERE] Engine.spawnEnemy(String enemy) -> enemy not recognized: [" + enemy + "]");
+                return;
+            }
+        }
+    }
+
+    public void grantPoints(int points_on_kill) {
+        Player p = findPlayer();
+        p.addPoints(points_on_kill);
+    }
     /* 
         Re-used function to add a given renderable object to a specific render-level. 
     */
@@ -453,5 +509,37 @@ public class Engine {
             }
         }
     }
+    
+    private void initGameStats(){
+        long IDPoints = 3L;
+        long IDHealth = 4L;
+        long IDArmor = 5L;
+        long IDGun = 6L;
+        long IDGunDmg = 7L;
+        long IDGunSpeed = 8L;
+        long IDSpeed = 9L;
+        addToRenderLevel(RenderLevel.BACKGROUND, IDPoints, gamestats.getP1Points());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDHealth, gamestats.getP1Health());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDArmor, gamestats.getP1Armor());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDGun, gamestats.getP1Gun());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDGunDmg, gamestats.getP1GunDmg());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDGunSpeed, gamestats.getP1GunSpeed());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDSpeed, gamestats.getP1Speed());
+        view.getChildren().add(gamestats.getP1Points().getView());
+        view.getChildren().add(gamestats.getP1Health().getView());
+        view.getChildren().add(gamestats.getP1Armor().getView());
+        view.getChildren().add(gamestats.getP1Gun().getView());
+        view.getChildren().add(gamestats.getP1GunDmg().getView());
+        view.getChildren().add(gamestats.getP1GunSpeed().getView());
+        view.getChildren().add(gamestats.getP1Speed().getView());
+    }
+    private void updateGameStats(Player p) {
+        gamestats.updateP1Points(p.getPoints());
+        gamestats.updateP1Health(p.getHealth());
+        gamestats.updateP1Armor(p.getArmor());
+        gamestats.updateP1Gun(p.getGun().getName());
+        gamestats.updateP1GunDmg(p.getGun().getDmg());
+    }
+    
     
 }

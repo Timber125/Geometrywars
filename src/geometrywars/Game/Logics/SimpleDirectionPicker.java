@@ -15,6 +15,8 @@ import java.util.Random;
  */
 public class SimpleDirectionPicker extends DirectionManager{
     
+    private boolean debug = false;
+    
     private long timeSinceLastChange;
     private long cycleTime;
     
@@ -36,7 +38,7 @@ public class SimpleDirectionPicker extends DirectionManager{
         this.xVect = d.getXVect();
         this.yVect = d.getYVect();
         timeSinceLastChange = System.currentTimeMillis();
-        System.out.println("Changed direction: [" + xVect + "] [" + yVect + "] (func: " + test() + ")" );
+        if(debug) System.out.println("Changed direction: [" + xVect + "] [" + yVect + "] (func: " + test() + ")" );
     }
     
     private double test(){
@@ -52,5 +54,9 @@ public class SimpleDirectionPicker extends DirectionManager{
     public double getYVect(){
         checkValidity();
         return yVect;
+    }
+
+    public void recalculate() {
+        pickDirection();
     }
 }

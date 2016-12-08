@@ -33,7 +33,9 @@ public abstract class Renderable{
     }
     
     public abstract void update(ViewPane p);
-    public abstract void kill();
+    public void kill(){
+        Engine.engine.removeObject(this);
+    }
     public abstract Node getView();
     
 }

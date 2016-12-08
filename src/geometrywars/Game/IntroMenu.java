@@ -86,7 +86,7 @@ public class IntroMenu {
                 Engine.engine.setControls(new InputHandler(scene), new MouseHandler(scene));
         
                 Engine.engine.spawnPlayer1();
-                Engine.engine.spawnCollidableCircleDummy(100, 50);
+                //Engine.engine.spawnCollidableCircleDummy(100, 50);
                 // Start the engine
                 Engine.engine.start();
                 // Spawn stuff (testing phase)

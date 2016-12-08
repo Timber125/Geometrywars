@@ -64,5 +64,6 @@ public class Direction {
     public double getYVect(){
         return yVect;
     }
+
    
 }

@@ -46,14 +46,11 @@ public class CollidableImage extends Collidable{
     }
 
     @Override
-    public void onCollide() {
-        System.out.println("CollidableImage [" + ID + "] collided.");
+    public void onCollide(Collidable other) {
+        System.out.println("CollidableImage [" + ID + "] collided with [" + other.ID + "]");
     }
 
-    @Override
-    public void kill() {
-        view.getView().setVisible(false);
-    }
+    
     
      @Override
     public Point getCenter() {
