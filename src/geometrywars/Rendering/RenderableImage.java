@@ -30,6 +30,7 @@ public class RenderableImage extends Renderable{
         
         URL resource = Geometrywars.class.getResource("/geometrywars/Resources/" + filename);
         Image i = new Image(resource.toString());
+       
 
         ((ImageView) this.view.getView()).setImage(i);
     }

@@ -10,10 +10,12 @@
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/ViewPane.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/Collidable.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Logics/MovingCollidableImage.java</file>
+            <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Resources/Shuttle8.png</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Geometrywars.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Resources/BlueRocket.png</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/CircularHitBox.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Shop.java</file>
+            <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Resources/Shuttle9.png</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/Renderable.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Objects/ShuttleSix.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Objects/ShuttleFour.java</file>
@@ -30,7 +32,10 @@
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Logics/DirectionManager.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Resources/DarkGreenRocketSmall.png</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Objects/ShuttleFive.java</file>
+            <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Resources/Shuttle1.png</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Control/MouseHandler.java</file>
+            <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Resources/Shuttle7.png</file>
+            <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/TriangularHitBox.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/HitBox.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Game/Logics/Direction.java</file>
             <file>file:/home/timber/NetBeansProjects/Geometrywars/src/geometrywars/Rendering/CollidableImage.java</file>
