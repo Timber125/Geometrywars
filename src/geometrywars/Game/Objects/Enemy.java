@@ -100,11 +100,29 @@ public abstract class Enemy extends MovingCollidableImage{
         p.getChildren().remove(this.view.getView());
         this.view.getView().relocate(this.xPos, this.yPos);
         p.getChildren().add(this.view.getView());
+        
+        
+        // Shooting part:
+        
+        long now = System.currentTimeMillis();
+        long treshold_delta = now - last_shot;
+        
+        if(treshold_delta > this.getGun().getSpeedAsTresholdTime()){
+            // SHOOT!
+            last_shot = System.currentTimeMillis();
+            Player pl = (Player) Engine.engine.find(1L, 3);
+            Engine.engine.spawnBullet(this.xPos, this.yPos, new Direction(this.xPos, this.yPos, pl.xPos, pl.yPos), Enemy.class, getGun());
+        }
+        
+        
     }
     
     @Override
     public void onCollide(Collidable other){
         if(other instanceof Bullet){
+            Engine.engine.grantPoints(points_on_kill);
+            this.kill();
+        }else if(other instanceof Player){
             Engine.engine.grantPoints(points_on_kill);
             this.kill();
         }

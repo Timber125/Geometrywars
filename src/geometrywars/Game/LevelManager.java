@@ -16,11 +16,12 @@ import java.util.Random;
  * @author timber
  */
 public class LevelManager {
-    
+    private boolean debug = true;
     private int current_level = 1;
     
     private final ArrayList<String>[] enemies = new ArrayList[3];
     
+    public long[] levelTimes = new long[3];
     
     public LevelManager(){
         enemies[0] = new ArrayList<>();
@@ -32,6 +33,16 @@ public class LevelManager {
         
         enemies[2] = new ArrayList<>();
         enemies[2].add("ShuttleThree");
+        
+        levelTimes[0] = 60000L;
+        levelTimes[1] = 60000L;
+        levelTimes[2] = 120000L;
+        
+        if(debug){
+            levelTimes[0] = 20000L;
+            levelTimes[1] = 20000L;
+            levelTimes[2] = 30000L;
+        }
     }
     
     public double spawnChance(){
@@ -80,4 +91,23 @@ public class LevelManager {
         }else return enemies[current_level-1];
     }
     
+    public synchronized void levelUp(){
+        this.current_level ++;
+        if(this.current_level > 3) {
+            Engine.engine.gameOver(true);
+            current_level = 1;
+        }
+        
+    }
+    
+    public long getLevelTime(){
+        return levelTimes[current_level-1];
+    }
+    public long getLevelTime(int level){
+        return levelTimes[level-1];
+    }
+    
+    public int getLevel(){
+        return current_level;
+    }
 }

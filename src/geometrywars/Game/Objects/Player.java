@@ -101,7 +101,7 @@ public class Player extends MovingCollidableImage{
             
             if(this.getHealth() <= dmg){
                 this.setHealth(0);
-                Engine.engine.gameOver();
+                Engine.engine.gameOver(false);
                 return;
             }
     }

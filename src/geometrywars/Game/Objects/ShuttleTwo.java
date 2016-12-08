@@ -33,11 +33,13 @@ public class ShuttleTwo extends Enemy{
         super(ID, xPos, yPos, hitbox, imagelocation);
         this.points_on_kill = 100;
         this.speed = 4;
+        this.setGun(new SpaceMitrailette());
     }
     public ShuttleTwo(long ID) {
         super(ID, hitbox, imagelocation);
         this.points_on_kill = 100;
         this.speed = 4;
+        this.setGun(new SpaceMitrailette());
     }
     
     

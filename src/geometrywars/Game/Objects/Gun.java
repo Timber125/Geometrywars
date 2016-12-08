@@ -22,5 +22,9 @@ public abstract class Gun {
     public double getSpeed(){
         return att_speed;
     }
-    
+    public Long getSpeedAsTresholdTime(){
+        Double asDouble = 1000 / att_speed;
+        Long asLong = asDouble.longValue();
+        return asLong;
+    }
 }

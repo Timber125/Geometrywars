@@ -63,6 +63,7 @@ public class Engine {
     private boolean paused = false;
     
     private LevelManager levelManager;
+    private Long timeOfLevelStart;
     private GameStats gamestats;
     public Engine (){
         levelManager = new LevelManager();
@@ -102,8 +103,9 @@ public class Engine {
         return null;
     }
 
-    public void gameOver() {
-        spawnLabel(RenderLevel.BACKGROUND, 300, 300, "Game Over! You scored " + findPlayer().getPoints() + " points.");
+    public void gameOver(boolean won) {
+        String text = (won ? ("Victory!! ") : ("Defeated! "));
+        spawnLabel(RenderLevel.BACKGROUND, 300, 300, text + "You scored " + findPlayer().getPoints() + " points.");
         try {
             // Leave 50 ms to let the engine have one more loop, so health can be updated to zero. 
             // This would otherwise leave some confusion to the player, as he would never be sure he actually hit 0 hitpoins.
@@ -113,6 +115,8 @@ public class Engine {
         }
         active = false;
     }
+
+   
     
     public enum RenderLevel {
         BACKGROUND(0), 
@@ -254,6 +258,7 @@ public class Engine {
 
             @Override
             public void run() {
+                
                 while(active){
                     
                     Platform.runLater(new Runnable(){
@@ -263,7 +268,7 @@ public class Engine {
                             Player p = findPlayer();
                             actOnInput(p);
                             updateGameStats(p);
-                            
+                            updateLevelIfNeeded();
                             if(!paused){
                                 spawnEnemy(levelManager.spawn());
                                 shootPlayer(p);
@@ -271,6 +276,8 @@ public class Engine {
                                 updateAllObj();
                             }
                         }
+
+                        
 
                         
 
@@ -338,6 +345,11 @@ public class Engine {
         view.getChildren().remove(r.getView());
         locate(id).remove(id);        
     }
+    public void removeObject(long ID) throws NullPointerException{
+        Renderable r = find(ID);
+        view.getChildren().remove(r.getView());
+        locate(ID).remove(ID);   
+    }
     
     private void checkCollisions(){
         ArrayList<Renderable> collidelayer = new ArrayList<>();
@@ -385,6 +397,7 @@ public class Engine {
         active = true;
         gameloopthread = new Thread(createGameLoop(60));
         gameloopthread.start();
+        timeOfLevelStart = System.currentTimeMillis();
     }
     public void stop(){
         active = false;
@@ -427,6 +440,12 @@ public class Engine {
     public void spawnLabel(RenderLevel render_level, int xPos, int yPos, String text){
         long nextID = getNextIdSafely();
         RenderableLabel rl = new RenderableLabel(nextID, xPos, yPos, text);
+        addToRenderLevel(render_level, nextID, rl);
+        view.getChildren().add(rl.getView());
+    }
+    public void spawnTimedLabel(RenderLevel render_level, int xPos, int yPos, String text, Long millis){
+        long nextID = getNextIdSafely();
+        TimedRenderableLabel rl = new TimedRenderableLabel(nextID, xPos, yPos, text, millis);
         addToRenderLevel(render_level, nextID, rl);
         view.getChildren().add(rl.getView());
     }
@@ -541,5 +560,13 @@ public class Engine {
         gamestats.updateP1GunDmg(p.getGun().getDmg());
     }
     
-    
+    private void updateLevelIfNeeded() {
+        long level_busy = System.currentTimeMillis() - timeOfLevelStart;
+        if(level_busy > levelManager.getLevelTime()){
+            timeOfLevelStart = System.currentTimeMillis();
+            levelManager.levelUp();
+            spawnTimedLabel(RenderLevel.BACKGROUND, 320, 80, "LEVEL " + levelManager.getLevel(), 5000L);
+        }
+        
+    }
 }
