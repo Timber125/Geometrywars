@@ -116,6 +116,12 @@ public class Engine {
         active = false;
     }
 
+    private int difficulty = 0;
+    public void setDifficulty(int difficulty) {
+        this.difficulty = difficulty;
+    }
+    public int getDifficulty(){return difficulty;}
+
    
     
     public enum RenderLevel {
@@ -398,6 +404,7 @@ public class Engine {
         gameloopthread = new Thread(createGameLoop(60));
         gameloopthread.start();
         timeOfLevelStart = System.currentTimeMillis();
+        spawnTimedLabel(RenderLevel.BACKGROUND, 320, 100, "Level 1, Good luck!", 5000L);
     }
     public void stop(){
         active = false;

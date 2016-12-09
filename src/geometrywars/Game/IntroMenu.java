@@ -75,24 +75,7 @@ public class IntroMenu {
 
             @Override
             public void handle(ActionEvent event) {
-                //JOptionPane.showMessageDialog(null, "SinglePlayer pressed.");
-                Pane root = new Pane();
-                root.getChildren().add(Engine.engine.getViewPane());
-                Scene scene = new Scene(root, 800, 800);
-                actingStage.setTitle("Geometrywars");
-                actingStage.setScene(scene);
-                actingStage.show();
-                // Give engine connection to the mouse and keylisteners defined in control package
-                Engine.engine.setControls(new InputHandler(scene), new MouseHandler(scene));
-        
-                Engine.engine.spawnPlayer1();
-                //Engine.engine.spawnCollidableCircleDummy(100, 50);
-                // Start the engine
-                Engine.engine.start();
-                // Spawn stuff (testing phase)
-                //Engine.engine.spawnLabel(Engine.RenderLevel.NO_COLLIDE, 100, 100, "Testlabel");
-                //Engine.engine.spawnImage(Engine.RenderLevel.NO_COLLIDE, 200, 200, "BlueRocketSmall.png");
-                //Engine.engine.spawnImage(Engine.RenderLevel.BACKGROUND, 120, 120, "YellowRocket.png");
+                SinglePlayerMenu spm = new SinglePlayerMenu(actingStage);
             }
             
         };

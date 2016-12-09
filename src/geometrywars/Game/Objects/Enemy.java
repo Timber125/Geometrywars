@@ -5,6 +5,7 @@
  */
 package geometrywars.Game.Objects;
 
+import geometrywars.Game.Logics.AimingIntelligence;
 import geometrywars.Game.Logics.Direction;
 import geometrywars.Game.Logics.MovingCollidableImage;
 import geometrywars.Game.Logics.SimpleDirectionPicker;
@@ -111,7 +112,9 @@ public abstract class Enemy extends MovingCollidableImage{
             // SHOOT!
             last_shot = System.currentTimeMillis();
             Player pl = (Player) Engine.engine.find(1L, 3);
-            Engine.engine.spawnBullet(this.xPos, this.yPos, new Direction(this.xPos, this.yPos, pl.xPos, pl.yPos), Enemy.class, getGun());
+            Point target = new Point(pl.xPos, pl.yPos);
+            target = AimingIntelligence.aim(target);
+            Engine.engine.spawnBullet(this.xPos, this.yPos, new Direction(this.xPos, this.yPos, target.X, target.Y), Enemy.class, getGun());
         }
         
         
