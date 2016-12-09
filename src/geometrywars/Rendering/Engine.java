@@ -5,6 +5,7 @@
  */
 package geometrywars.Rendering;
 
+import Tests.EnginePerformanceTest;
 import geometrywars.Control.InputBuffer;
 import geometrywars.Control.InputHandler;
 import geometrywars.Control.MouseHandler;
@@ -62,11 +63,16 @@ public class Engine {
     
     private boolean paused = false;
     
+    private boolean no_enemies = true;
+    
     private LevelManager levelManager;
     private Long timeOfLevelStart;
     private GameStats gamestats;
     public Engine (){
-        levelManager = new LevelManager();
+        // For engine performance:
+            //levelManager = new EnginePerformanceTest();
+        // For game:
+            levelManager = new LevelManager();
         gamestats = new GameStats();
         initGameStats();
     }
@@ -258,7 +264,7 @@ public class Engine {
         does not permit access to the engine functions itself without a forced reference.
     
     */
-    
+    private long fps_cycleTime = 50L;
     private Runnable createGameLoop(int fps){
         Runnable r = new Runnable(){
 
@@ -271,16 +277,19 @@ public class Engine {
 
                         @Override
                         public void run() {
+                            long startCycle = System.currentTimeMillis();
                             Player p = findPlayer();
                             actOnInput(p);
                             updateGameStats(p);
                             updateLevelIfNeeded();
                             if(!paused){
-                                spawnEnemy(levelManager.spawn());
+                                spawnEnemy(levelManager.spawn(no_enemies));
                                 shootPlayer(p);
                                 checkCollisions();
                                 updateAllObj();
                             }
+                            long endCycle = System.currentTimeMillis();
+                            fps_cycleTime = endCycle - startCycle;
                         }
 
                         
@@ -310,6 +319,8 @@ public class Engine {
     
     private void updateAllObj(){
         boolean debugmode_updates = global_debugmode;
+        int objectcount = 0;
+        int enemyCount = 0;
         Collection<Renderable>[] layers = new Collection[4];
         layers[0] = new ArrayList<>();
         layers[0].addAll(background_layer0.values());
@@ -322,7 +333,7 @@ public class Engine {
         
         for(int i = 0; i < 4; i++){
             for (Renderable r : layers[i]){
-            
+                objectcount++;
                 if(view.inBounds(r)) r.update(view);
                 else removeObject(r);
             
@@ -330,9 +341,18 @@ public class Engine {
                     System.out.println("[renderlvl " + i + "] Updated " + r.getClass() + " with id " + r.ID);
                     System.out.flush();
                 }
-            
+                
+                if(r instanceof Enemy) enemyCount++;
             }   
         }
+        // TESTING
+        if(levelManager instanceof EnginePerformanceTest){
+            System.out.println("Engine handling [" + objectcount + "] moving objects at a capped [" + (1000 / fps_cycleTime) + "] / [60] frames per second.");
+            findPlayer().setHealth(10000); // virtually Godmode
+        }
+        
+        if(enemyCount == 0) no_enemies = true;
+        else no_enemies = false;
         
     }
     

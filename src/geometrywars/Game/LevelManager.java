@@ -80,6 +80,12 @@ public class LevelManager {
             return "none";
         }
     }
+    public String spawn(boolean needs_enemy_forsure){
+        if(!needs_enemy_forsure) return spawn();
+        Random r = new Random();
+        int pickedEnemy = r.nextInt(possibleEnemies().size());
+        return possibleEnemies().get(pickedEnemy);
+    }
     
     public ArrayList<String> possibleEnemies(){
         if(current_level > 3){
