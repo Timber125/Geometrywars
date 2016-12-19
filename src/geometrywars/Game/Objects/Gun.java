@@ -5,6 +5,10 @@
  */
 package geometrywars.Game.Objects;
 
+import geometrywars.Game.Logics.Direction;
+import geometrywars.Rendering.Collidable;
+import java.util.Collection;
+
 /**
  *
  * @author timber
@@ -27,4 +31,20 @@ public abstract class Gun {
         Long asLong = asDouble.longValue();
         return asLong;
     }
+    public Bullet createBullet(long ID, int xPos, int yPos, Direction d){
+        return new Bullet(ID, xPos, yPos, d, this.dmg);
+    }
+    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, Collection<Class> friendly){
+        return new Bullet(ID, xPos, yPos, friendly, d, this.dmg);
+    }
+    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, Class friendly){
+        return new Bullet(ID, xPos, yPos, d, friendly, this.dmg);
+    }
+    public Bullet createBullet(long ID, int xPos, int yPos, Collection<Collidable> friendly, Direction d){
+        return new Bullet(ID, xPos, yPos, d, friendly, this.dmg);
+    }
+    public Bullet createBullet(long ID, int xPos, int yPos, Collidable friendly, Direction d){
+        return new Bullet(ID, xPos, yPos, d, friendly, this.dmg);
+    }
+    
 }

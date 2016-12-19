@@ -34,43 +34,43 @@ public abstract class Enemy extends MovingCollidableImage{
         this.collide_dmg = collideDmg;
     }
     
-    public Enemy(long ID, int xPos, int yPos, HitBox hb, String filename, long cycleTime) {
-        super(ID, xPos, yPos, hb, filename, new Direction());
+    public Enemy(long ID, long hpID, int xPos, int yPos, HitBox hb, String filename, long cycleTime) {
+        super(ID, hpID, xPos, yPos, hb, filename, new Direction());
         this.cycleTime = cycleTime;
         createDirectionManager();
     }
-    public Enemy(long ID, int xPos, int yPos, HitBox hb, String filename) {
-        super(ID, xPos, yPos, hb, filename, new Direction());
+    public Enemy(long ID, long hpID, int xPos, int yPos, HitBox hb, String filename) {
+        super(ID, hpID, xPos, yPos, hb, filename, new Direction());
         this.cycleTime = standard_cycletime;
         createDirectionManager();
     }
-    public Enemy(long ID, int xPos, int yPos, HitBox hb, String filename, long cycleTime, int speed, Gun gun) {
-        super(ID, xPos, yPos, hb, filename, new Direction());
+    public Enemy(long ID, long hpID, int xPos, int yPos, HitBox hb, String filename, long cycleTime, int speed, Gun gun) {
+        super(ID, hpID, xPos, yPos, hb, filename, new Direction());
         this.cycleTime = cycleTime;
         this.setGun(gun);
         this.speed = speed;
         createDirectionManager();
     }
-    public Enemy(long ID, int xPos, int yPos, HitBox hb, String filename, Direction d) {
-        super(ID, xPos, yPos, hb, filename, d);
+    public Enemy(long ID, long hpID, int xPos, int yPos, HitBox hb, String filename, Direction d) {
+        super(ID, hpID, xPos, yPos, hb, filename, d);
         this.cycleTime = standard_cycletime;
     }
-    public Enemy(long ID, int xPos, int yPos, HitBox hb, String filename, Direction d, long cycleTime) {
-        super(ID, xPos, yPos, hb, filename, d);
+    public Enemy(long ID, long hpID, int xPos, int yPos, HitBox hb, String filename, Direction d, long cycleTime) {
+        super(ID, hpID, xPos, yPos, hb, filename, d);
         this.cycleTime = cycleTime;
     }
-    public Enemy(long ID, int xPos, int yPos, HitBox hb, String filename, Direction d, long cycleTime, int speed, Gun gun) {
-        super(ID, xPos, yPos, hb, filename, d);
+    public Enemy(long ID, long hpID, int xPos, int yPos, HitBox hb, String filename, Direction d, long cycleTime, int speed, Gun gun) {
+        super(ID, hpID, xPos, yPos, hb, filename, d);
         this.cycleTime = cycleTime;
         this.setGun(gun);
         this.speed = speed;
     }
-    public Enemy(long ID, HitBox hb, String filename) {
-        super(ID, 0, 0, hb, filename, new Direction());
+    public Enemy(long ID, long hpID, HitBox hb, String filename) {
+        super(ID, hpID, 0, 0, hb, filename, new Direction());
         this.cycleTime = standard_cycletime;
         Point p = Engine.engine.getSafeSpawnCoord(150);
-        this.xPos = p.X;
-        this.yPos = p.Y;
+        this.setX(p.X);
+        this.setY(p.Y);
         createDirectionManager();
     }
 
@@ -83,23 +83,23 @@ public abstract class Enemy extends MovingCollidableImage{
         // IF enemy attemts to move out of the bounds, 
         // Give an update to its directionPicker.
         
-        int oldX = this.xPos;
-        int oldY = this.yPos;
+        int oldX = this.getX();
+        int oldY = this.getY();
         
-        this.xPos += (direction.getXVect() * speed);
-        this.yPos += (direction.getYVect() * speed);
+        this.setX(this.getX() + ((Double) (direction.getXVect() * speed)).intValue());
+        this.setY(this.getY() + ((Double) (direction.getYVect() * speed)).intValue());
         
         // If not in view, rollback!
         // Deprecated because of generalised objectmargin. 
         if(!p.inView(this)){
             //System.err.println("DAMN DUDE");
-            this.xPos = oldX;
-            this.yPos = oldY;
+            this.setX(oldX);
+            this.setY(oldY);
             ((SimpleDirectionPicker)this.getDirection()).recalculate();
         }
         
         p.getChildren().remove(this.view.getView());
-        this.view.getView().relocate(this.xPos, this.yPos);
+        this.view.getView().relocate(this.getX(), this.getY());
         p.getChildren().add(this.view.getView());
         
         
@@ -112,9 +112,9 @@ public abstract class Enemy extends MovingCollidableImage{
             // SHOOT!
             last_shot = System.currentTimeMillis();
             Player pl = (Player) Engine.engine.find(1L, 3);
-            Point target = new Point(pl.xPos, pl.yPos);
+            Point target = new Point(pl.getX(), pl.getY());
             target = AimingIntelligence.aim(target);
-            Engine.engine.spawnBullet(this.xPos, this.yPos, new Direction(this.xPos, this.yPos, target.X, target.Y), Enemy.class, getGun());
+            Engine.engine.spawnBullet(this.getX(), this.getY(), new Direction(this.getX(), this.getY(), target.X, target.Y), Enemy.class, getGun());
         }
         
         
@@ -123,8 +123,14 @@ public abstract class Enemy extends MovingCollidableImage{
     @Override
     public void onCollide(Collidable other){
         if(other instanceof Bullet){
-            Engine.engine.grantPoints(points_on_kill);
-            this.kill();
+            Bullet b = (Bullet) other;
+            int dmg = b.getDmg();
+            if(getHealth() <= dmg) {
+                Engine.engine.grantPoints(points_on_kill);
+                this.kill();
+            }else{
+                this.setHealth(this.getHealth() - dmg);
+            }
         }else if(other instanceof Player){
             Engine.engine.grantPoints(points_on_kill);
             this.kill();

@@ -51,7 +51,7 @@ public class Direction {
     }
     
     public static Direction update(Renderable r, int xTo, int yTo){
-        return new Direction(r.xPos, r.yPos, xTo, yTo);
+        return new Direction(r.getX(), r.getY(), xTo, yTo);
     }
     
     public static Direction create(boolean NORTH, boolean EAST, boolean SOUTH, boolean WEST){

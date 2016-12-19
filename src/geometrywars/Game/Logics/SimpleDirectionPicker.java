@@ -34,7 +34,7 @@ public class SimpleDirectionPicker extends DirectionManager{
         Random r = new Random();
         int toX = r.nextInt(ViewPane.fieldWidth);
         int toY = r.nextInt(ViewPane.fieldHeight);
-        Direction d = new Direction(subject.xPos, subject.yPos, toX, toY);
+        Direction d = new Direction(subject.getX(), subject.getY(), toX, toY);
         this.xVect = d.getXVect();
         this.yVect = d.getYVect();
         timeSinceLastChange = System.currentTimeMillis();

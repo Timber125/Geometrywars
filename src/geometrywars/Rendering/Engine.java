@@ -20,6 +20,7 @@ import geometrywars.Game.Objects.Gun;
 import geometrywars.Game.Objects.Player;
 import geometrywars.Game.Objects.ShuttleThree;
 import geometrywars.Game.Objects.ShuttleTwo;
+import geometrywars.Game.Shop;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -185,6 +186,7 @@ public class Engine {
         Renderable player = find(1L, 2);
         if(player instanceof Player){
             Player p1 = (Player) player;
+            System.err.println("player x : " + p1.getX());
             return p1;
         }else{
             System.err.println("[FATAL] ID 1L IS NOT AN INSTANCE OF PLAYER!");
@@ -201,6 +203,8 @@ public class Engine {
          p1.setDirection(Direction.create(buff.up, buff.right, buff.down, buff.left));
          if(buff.enter) {
              paused = !paused;
+             if(paused) Shop.shop.openShop();
+             else Shop.shop.closeShop();
              System.out.println("enter pressed");
          }
     }
@@ -251,8 +255,8 @@ public class Engine {
     }
     private boolean isSafeSpawnCoord(Point p, double minDistance){
         Player player = findPlayer();
-        int xp = player.xPos;
-        int yp = player.yPos;
+        int xp = player.getX();
+        int yp = player.getY();
         
         double distance = Math.sqrt(Math.pow(Math.abs(p.X - xp), 2) + Math.pow(Math.abs(p.Y - yp), 2));
         if(distance > minDistance) return true;
@@ -442,25 +446,25 @@ public class Engine {
     }
     public void spawnBullet(int xPos, int yPos, Direction d, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d, spawner.getDmg());
+        Bullet b = spawner.createBullet(nextID, xPos, yPos, d);//new Bullet(nextID, xPos, yPos, d, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
     public void spawnBullet(int xPos, int yPos, Direction d, Collidable friendly, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        Bullet b = spawner.createBullet(nextID, xPos, yPos, friendly, d);//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
     public void spawnBullet(int xPos, int yPos, Direction d, Collection<Collidable> friendly, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        Bullet b = spawner.createBullet(nextID, xPos, yPos, friendly, d);//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
     public void spawnBullet(int xPos, int yPos, Direction d, Class friendly, Gun spawner){
         long nextID = getNextIdSafely();
-        Bullet b = new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        Bullet b = spawner.createBullet(nextID, xPos, yPos, d, friendly);//, xPos, yPos, d)//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
@@ -493,9 +497,16 @@ public class Engine {
     
     public void spawnPlayer1(){
         Long PLAYER1_ID = 1L;
-        Player p1 = new Player(PLAYER1_ID, 300, 300, 300, 300);
+        Long PlayerHP = getNextIdSafely();
+        Long PlayerArmor = getNextIdSafely();
+        Player p1 = new Player(PLAYER1_ID, PlayerHP, PlayerArmor, 300, 300, 300, 300);
         Engine.engine.addToRenderLevel(RenderLevel.COLLIDE, PLAYER1_ID, p1);
         view.getChildren().add(p1.getView());
+    }
+    
+    public void registerToNoCollide(Long ID, Renderable r){
+        Engine.engine.addToRenderLevel(RenderLevel.NO_COLLIDE, ID, r);
+        view.getChildren().add(r.getView());
     }
     
     public void spawnEnemy(String enemy){
@@ -504,7 +515,8 @@ public class Engine {
             case("ShuttleTwo"):{
                 long nextID = getNextIdSafely();
                 Point p = getSafeSpawnCoord(150);
-                ShuttleTwo en = new ShuttleTwo(nextID);
+                long hpID = getNextIdSafely();
+                ShuttleTwo en = new ShuttleTwo(nextID, hpID);
                 addToRenderLevel(RenderLevel.COLLIDE, nextID, en);
                 view.getChildren().add(en.getView());
                 return;
@@ -512,7 +524,8 @@ public class Engine {
             case("ShuttleThree"):{
                 long nextID = getNextIdSafely();
                 Point p = getSafeSpawnCoord(150);
-                ShuttleThree en = new ShuttleThree(nextID);
+                long hpID = getNextIdSafely();
+                ShuttleThree en = new ShuttleThree(nextID, hpID);
                 addToRenderLevel(RenderLevel.COLLIDE, nextID, en);
                 view.getChildren().add(en.getView());
                 return;

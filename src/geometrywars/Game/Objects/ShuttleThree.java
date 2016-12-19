@@ -26,13 +26,13 @@ public class ShuttleThree extends Enemy {
     
     
     //private Direction dir = new Direction(0.00, 0.00);
-    public ShuttleThree(long ID, int xPos, int yPos) {
-        super(ID, xPos, yPos, hitbox, imagelocation);
+    public ShuttleThree(long ID, long hpID, int xPos, int yPos) {
+        super(ID, hpID, xPos, yPos, hitbox, imagelocation);
         this.points_on_kill = 50;
         this.speed = 3;
     }
-    public ShuttleThree(long ID) {
-        super(ID, hitbox, imagelocation);
+    public ShuttleThree(long ID, long hpID) {
+        super(ID, hpID, hitbox, imagelocation);
         this.points_on_kill = 50;
         this.speed = 3;
     }

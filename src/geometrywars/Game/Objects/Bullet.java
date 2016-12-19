@@ -20,7 +20,7 @@ import java.util.HashMap;
  */
 public class Bullet extends MovingCollidableImage{
 
-    private static final String filename = "Bullet.png";
+    private static String filename = "Bullet.png";
     public static final int size = 7;
     public final int bullet_speed = 7;
     private int dmg = 0;
@@ -64,6 +64,39 @@ public class Bullet extends MovingCollidableImage{
         this.speed = bullet_speed;
         this.dmg = dmg;
     }
+    public Bullet(long ID, int xPos, int yPos, Direction d, int dmg, String filename) {
+        super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
+        this.speed = bullet_speed;
+        this.dmg = dmg;
+    }
+    
+    public Bullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg, String filename) {
+        super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
+        this.friendly.put(friendly.ID, friendly);
+        this.speed = bullet_speed;
+        this.dmg = dmg;
+    }
+    
+    public Bullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg, String filename) {
+        super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
+        for(Collidable c : friendly){
+            this.friendly.put(c.ID, c);
+        }
+        this.speed = bullet_speed;
+        this.dmg = dmg;
+    }
+    public Bullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg, String filename){
+        super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
+        this.friendlyClasses.add(friendly);
+        this.speed = bullet_speed;
+        this.dmg = dmg;
+    }
+    public Bullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg, String filename){
+        super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
+        this.friendlyClasses.addAll(friendly);
+        this.speed = bullet_speed;
+        this.dmg = dmg;
+    }
     
     public boolean isfriendly(Collidable c){
         if (friendly.values().contains(c)) return true;
@@ -81,7 +114,6 @@ public class Bullet extends MovingCollidableImage{
         this.kill();
     }
     /*
-        Too much computation to get to the object represented by this ID. 
     public boolean isfriendly(long id){
         return friendly.keySet().contains(id);
     }*/

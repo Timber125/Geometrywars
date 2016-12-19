@@ -29,14 +29,14 @@ public class ShuttleTwo extends Enemy{
     
     //private Direction dir = new Direction(0.00, 0.00);
     
-    public ShuttleTwo(long ID, int xPos, int yPos) {
-        super(ID, xPos, yPos, hitbox, imagelocation);
+    public ShuttleTwo(long ID, long hpID, int xPos, int yPos) {
+        super(ID, hpID, xPos, yPos, hitbox, imagelocation);
         this.points_on_kill = 100;
         this.speed = 4;
         this.setGun(new SpaceMitrailette());
     }
-    public ShuttleTwo(long ID) {
-        super(ID, hitbox, imagelocation);
+    public ShuttleTwo(long ID, long hpID) {
+        super(ID, hpID, hitbox, imagelocation);
         this.points_on_kill = 100;
         this.speed = 4;
         this.setGun(new SpaceMitrailette());

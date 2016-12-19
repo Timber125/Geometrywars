@@ -53,16 +53,16 @@ public class ViewPane extends AnchorPane{
     }
     
     public boolean inBounds(Renderable r){
-        int x = r.xPos;
-        int y = r.yPos;
+        int x = r.getX();
+        int y = r.getY();
         
         return (((x > (0-killObjectMargin)) && (x < (fieldWidth+killObjectMargin))) && ((y > (0-killObjectMargin))&&(y < (fieldHeight+killObjectMargin))));
     }
     // No killObjectMargin!
     @Deprecated
     public boolean inView(Renderable r){
-        int x = r.xPos;
-        int y = r.yPos;
+        int x = r.getX();
+        int y = r.getY();
         
         return (((x > (0)) && (x < (fieldWidth - objectMargin))) && ((y > (0))&&(y < (fieldHeight - objectMargin))));
     }

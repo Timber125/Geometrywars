@@ -10,6 +10,7 @@ package geometrywars.Game.Objects;
  * @author timber
  */
 public class SpaceLaserGun extends Gun{
+    // Standard Bullet, does not need its own bullet. 
     public SpaceLaserGun(){
         super();
         this.dmg = 40;

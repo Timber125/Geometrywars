@@ -36,7 +36,7 @@ public class CollidableImage extends Collidable{
     @Override
     public void update(ViewPane p) {
         p.getChildren().remove(this.view.getView());
-        this.view.getView().relocate(this.xPos, this.yPos);
+        this.view.getView().relocate(this.getX(), this.getY());
         p.getChildren().add(this.view.getView());
     }
     
@@ -54,8 +54,8 @@ public class CollidableImage extends Collidable{
     
      @Override
     public Point getCenter() {
-        int x = this.xPos + (this.getHitBox().getXCenter());
-        int y = this.yPos + (this.getHitBox().getYCenter());
+        int x = this.getX() + (this.getHitBox().getXCenter());
+        int y = this.getY() + (this.getHitBox().getYCenter());
         return new Point(x,y);
     }
     

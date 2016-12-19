@@ -5,7 +5,9 @@
  */
 package geometrywars.Game.Objects;
 
+import geometrywars.Game.Logics.ArmorBar;
 import geometrywars.Game.Logics.Direction;
+import geometrywars.Game.Logics.HealthBar;
 import geometrywars.Game.Logics.MovingCollidableImage;
 import geometrywars.Rendering.CircularHitBox;
 import geometrywars.Rendering.Collidable;
@@ -37,6 +39,8 @@ public class Player extends MovingCollidableImage{
     public long last_shot = System.currentTimeMillis(); // time when last shot was fired
     private int points = 0;
     
+    private ArmorBar armorBar;
+    
     public int getPoints(){
         return points;
     }
@@ -51,10 +55,12 @@ public class Player extends MovingCollidableImage{
     
     //private Direction dir = new Direction(0.00, 0.00);
     
-    public Player(long ID, int xPos, int yPos, int xMouse, int yMouse) {
-        super(ID, xPos, yPos, hitbox, imagelocation, new Direction(xPos, yPos, xMouse, yMouse));
+    public Player(long ID, long hpID, long armorID, int xPos, int yPos, int xMouse, int yMouse) {
+        super(ID, hpID, xPos, yPos, hitbox, imagelocation, new Direction(xPos, yPos, xMouse, yMouse));
         this.speed = 5;
         this.setGun(new SpaceCannon());
+        armorBar = new ArmorBar(armorID, 25, 100);
+        this.addListener(armorBar);
     }
     
    
@@ -65,22 +71,25 @@ public class Player extends MovingCollidableImage{
         // IF player attemts to move out of the bounds, 
         // Deny the attempt!
         
-        int oldX = this.xPos;
-        int oldY = this.yPos;
+        int oldX = this.getX();
+        int oldY = this.getY();
         
-        this.xPos += (direction.getXVect() * speed);
-        this.yPos += (direction.getYVect() * speed);
+        Integer nextX = this.getX() + ((Double)(direction.getXVect() * speed)).intValue();
+        Integer nextY = this.getY() + ((Double)(direction.getYVect() * speed)).intValue();
+        this.setX(nextX);
+        this.setY(nextY);
         
         // If not in view, rollback!
         if(!p.inView(this)){
             //System.err.println("DAMN DUDE");
-            this.xPos = oldX;
-            this.yPos = oldY;
+            this.setX(oldX);
+            this.setY(oldY);
         }
         
         p.getChildren().remove(this.view.getView());
-        this.view.getView().relocate(this.xPos, this.yPos);
+        this.view.getView().relocate(this.getX(), this.getY());
         p.getChildren().add(this.view.getView());
+        
     }
     
     public void takeDamage(int dmg){
@@ -118,5 +127,13 @@ public class Player extends MovingCollidableImage{
         }
     }
     
+    @Override
+    public void setArmor(int i){
+        armorBar.setHP(i);
+    }
     
+    @Override
+    public int getArmor(){
+        return armorBar.getHP();
+    }
 }

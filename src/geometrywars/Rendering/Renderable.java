@@ -5,6 +5,7 @@
  */
 package geometrywars.Rendering;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.Node;
 
 /**
@@ -17,18 +18,35 @@ public abstract class Renderable{
     
     public RenderObject view;
     
-    public int xPos;
-    public int yPos;
+    public SimpleIntegerProperty xPos;
+    public SimpleIntegerProperty yPos;
+    
+    public int setX(int xPos){
+        this.xPos.setValue(xPos);
+        return this.xPos.getValue();
+    }
+    public int getX(){
+        return this.xPos.getValue();
+    }
+    public int setY(int yPos){
+        this.yPos.setValue(yPos);
+        return this.yPos.getValue();
+    }
+    public int getY(){
+        return this.yPos.getValue();
+    }
     
     public Renderable(long ID){
-        this.xPos = 0;
-        this.yPos = 0;
+        xPos = new SimpleIntegerProperty(0);
+        yPos = new SimpleIntegerProperty(0);
         this.ID = ID;
     }
     
     public Renderable(long ID, int xPos, int yPos){
-        this.xPos = xPos;
-        this.yPos = yPos;
+        this.xPos = new SimpleIntegerProperty(xPos);
+        this.xPos.setValue(xPos);
+        this.yPos = new SimpleIntegerProperty(yPos);
+        this.yPos.setValue(yPos);
         this.ID = ID;
     }
     
@@ -36,6 +54,8 @@ public abstract class Renderable{
     public void kill(){
         Engine.engine.removeObject(this);
     }
-    public abstract Node getView();
+    public Node getView(){
+        return view.getView();
+    }
     
 }

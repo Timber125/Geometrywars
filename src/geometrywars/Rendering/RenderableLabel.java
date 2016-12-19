@@ -30,7 +30,7 @@ public class RenderableLabel extends Renderable{
     @Override
     public void update(ViewPane p) {
         p.getChildren().remove(this.view.getView());
-        this.view.getView().relocate(this.xPos, this.yPos);
+        this.view.getView().relocate(this.getX(), this.getY());
         p.getChildren().add(this.view.getView());
     }
     

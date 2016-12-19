@@ -9,7 +9,7 @@ package geometrywars.Rendering;
  *
  * @author timber
  */
-public abstract class Collidable extends Renderable
+public abstract class Collidable extends ObservedRenderable
 {
     private HitBox hitbox;
 
@@ -17,6 +17,7 @@ public abstract class Collidable extends Renderable
         super(ID, xPos, yPos);
         this.hitbox = hb;
     }
+    
     
     public HitBox getHitBox(){
         return hitbox;
@@ -95,8 +96,8 @@ public abstract class Collidable extends Renderable
     private boolean circle_rectangle_collide(Collidable c1, Collidable c2) {
        
         // relative Distance of positions
-        int dX = Math.abs(c1.xPos - c2.xPos);
-        int dY = Math.abs(c1.yPos - c2.yPos);
+        int dX = Math.abs(c1.getX() - c2.getX());
+        int dY = Math.abs(c1.getY() - c2.getY());
         
         RectangularHitBox rect = (RectangularHitBox) c2.getHitBox();
         CircularHitBox circle = (CircularHitBox) c1.getHitBox();
@@ -120,10 +121,10 @@ public abstract class Collidable extends Renderable
         CircularHitBox circle = (CircularHitBox) c1.getHitBox();
         TriangularHitBox triangle = (TriangularHitBox) c2.getHitBox();
         
-        int cX = c1.xPos;
-        int cY = c1.yPos;
-        int tX = c2.xPos;
-        int tY = c2.yPos;
+        int cX = c1.getX();
+        int cY = c1.getY();
+        int tX = c2.getX();
+        int tY = c2.getY();
         // Damn, teveel maths, tis voor de volgende build.
         return false;
     }
