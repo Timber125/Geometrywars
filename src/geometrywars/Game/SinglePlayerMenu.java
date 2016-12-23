@@ -29,8 +29,10 @@ public class SinglePlayerMenu {
     private final String backgroundImage = "SpaceBG1.jpg";
     
     private final Stage actingStage;
-    public SinglePlayerMenu(Stage primaryStage){
+    private String name;
+    public SinglePlayerMenu(Stage primaryStage, String name){
         this.actingStage = primaryStage;
+        this.name = name;
         Pane root = new Pane();
         root.getChildren().add(createMenu());
         root.setStyle("-fx-background-color:#000000");
@@ -50,7 +52,7 @@ public class SinglePlayerMenu {
         Pane p = new Pane();
         p.setStyle("-fx-background-color:#000000;");
         p.setStyle("-fx-color:#000000;");
-        Label title = new Label("Tell me more about how skilled you are...");
+        Label title = new Label("Tell me more about how skilled you are, " + name + "...");
         title.setTextFill(Color.web("#ffff00"));
         Button easy = new Button("Easy");
         easy.setOnAction(start(0));
@@ -87,9 +89,10 @@ public class SinglePlayerMenu {
                 actingStage.setScene(scene);
                 actingStage.show();
                 // Give engine connection to the mouse and keylisteners defined in control package
-                Engine.engine.setControls(new InputHandler(scene), new MouseHandler(scene));
                 Engine.engine.setDifficulty(difficulty);
-                Engine.engine.spawnPlayer1();
+                Engine.engine.spawnPlayer1(name);
+                Engine.engine.setP1Controls(new InputHandler(scene), new MouseHandler(scene));
+                
                 //Engine.engine.spawnCollidableCircleDummy(100, 50);
                 // Start the engine
                 Engine.engine.start();

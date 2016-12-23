@@ -21,6 +21,14 @@ public class GameStats {
     private RenderableLabel p1Gun = new RenderableLabel(6L, 470, 20, "P1 Gun: " + "space laser");
     private RenderableLabel p1GunDmg = new RenderableLabel(7L, 470, 40, "P1 Gun: " + "10 dmg / bullet");
     private RenderableLabel p1GunSpeed = new RenderableLabel(8L, 470, 60, "P1 Gun: " + "2.5 bullets / second");
+    
+    private RenderableLabel P2Points = new RenderableLabel(13L, 20, 20, "P2 Points: " + 0);
+    private RenderableLabel P2Health = new RenderableLabel(14L, 170, 20, "P2 Health: " + 100 + "%");
+    private RenderableLabel P2Armor = new RenderableLabel(15L, 170, 40, "P2 Armor : " + 0 + "%");
+    private RenderableLabel P2Speed = new RenderableLabel(19L, 320, 20, "P2 Speed: " + 5);
+    private RenderableLabel P2Gun = new RenderableLabel(16L, 470, 20, "P2 Gun: " + "space laser");
+    private RenderableLabel P2GunDmg = new RenderableLabel(17L, 470, 40, "P2 Gun: " + "10 dmg / bullet");
+    private RenderableLabel P2GunSpeed = new RenderableLabel(18L, 470, 60, "P2 Gun: " + "2.5 bullets / second");
     public GameStats(){
         
     }
@@ -32,6 +40,14 @@ public class GameStats {
     public RenderableLabel getP1GunDmg(){return p1GunDmg;}
     public RenderableLabel getP1GunSpeed(){return p1GunSpeed;}
     public RenderableLabel getP1Speed(){return p1Speed;}
+    
+    public RenderableLabel getP2Points(){return P2Points;}
+    public RenderableLabel getP2Health(){return P2Health;}
+    public RenderableLabel getP2Armor(){return P2Armor;}
+    public RenderableLabel getP2Gun(){return P2Gun;}
+    public RenderableLabel getP2GunDmg(){return P2GunDmg;}
+    public RenderableLabel getP2GunSpeed(){return P2GunSpeed;}
+    public RenderableLabel getP2Speed(){return P2Speed;}
     
     public RenderableLabel updateP1Points(int points){
         p1Points.getView().setText("P1 Points: " + points);
@@ -57,8 +73,37 @@ public class GameStats {
         p1GunSpeed.getView().setText("P1 Gun: " + gunspeed + " bullets / second");
         return p1GunSpeed;
     }
-    public RenderableLabel updateSpeed(double speed){
+    public RenderableLabel updateP1Speed(double speed){
         p1Speed.getView().setText("P1 Speed: " + speed);
         return p1Speed;
+    }
+    
+     public RenderableLabel updateP2Points(int points){
+        P2Points.getView().setText("P2 Points: " + points);
+        return P2Points;
+    }
+    public RenderableLabel updateP2Health(int healthPercentage){
+        P2Health.getView().setText("P2 Health: " + healthPercentage + "%");
+        return P2Health;
+    }
+    public RenderableLabel updateP2Armor(int armorPercentage){
+        P2Armor.getView().setText("P2 Armor :" + armorPercentage + "%");
+        return P2Armor;
+    }
+    public RenderableLabel updateP2Gun(String gun){
+        P2Gun.getView().setText("P2 Gun: " + gun);
+        return P2Gun;
+    }
+    public RenderableLabel updateP2GunDmg(int dmg){
+        P2GunDmg.getView().setText("P2 Gun: " + dmg + " dmg / bullet");
+        return P2GunDmg;
+    }
+    public RenderableLabel updateP2GunSpeed(double gunspeed){
+        P2GunSpeed.getView().setText("P2 Gun: " + gunspeed + " bullets / second");
+        return P2GunSpeed;
+    }
+    public RenderableLabel updateP2Speed(double speed){
+        P2Speed.getView().setText("P2 Speed: " + speed);
+        return P2Speed;
     }
 }

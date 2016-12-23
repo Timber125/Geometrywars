@@ -28,6 +28,7 @@ public class Shop {
     private static final int costArmor = 100;
     private static final int costSpaceCannon = 3500;
     private static final int costSpaceMitrailette = 1500;
+    private static final int costAlly = 1000;
     
     public static Shop shop = new Shop();
     private Stage shopStage;
@@ -57,6 +58,11 @@ public class Shop {
     private Label spaceMitrailettePoverty = new Label("Not enough points");
     private Label spaceMitrailetteCost = new Label("[ " + costSpaceMitrailette + " ]");
     
+    private Button buyAlly = new Button("Buy an allied spaceship");
+    private Label allyEnable = new Label("ally with spacemitrailette");
+    private Label allyDisable = new Label("You can't spawn an ally right now");
+    private Label allyPoverty = new Label("Not enough points");
+    private Label allyCost = new Label("[ " + costAlly + " ]");
     
     
     
@@ -77,18 +83,21 @@ public class Shop {
                 spaceLaserDisable, spaceLaserCost, 
                 spaceLaserPoverty, buySpaceMitrailette, 
                 spaceMitrailetteEnable, spaceMitrailetteDisable, 
-                spaceMitrailetteCost, spaceMitrailettePoverty);
+                spaceMitrailetteCost, spaceMitrailettePoverty,
+                buyAlly, allyEnable, allyDisable, allyPoverty, allyCost);
         
         buyArmor.relocate(280,30);
         buySpaceCannon.relocate(280, 60);
         buySpaceLaser.relocate(280, 90);
         buySpaceMitrailette.relocate(280, 120);
+        buyAlly.relocate(280, 150);
         
         // Mag altijd blijven staan.
         armorCost.relocate(420, 30);
         spaceCannonCost.relocate(420, 60);
         spaceLaserCost.relocate(420, 90);
         spaceMitrailetteCost.relocate(420, 120);
+        allyCost.relocate(420, 150);
         
         armorEnable.relocate(20, 30);
         armorDisable.relocate(20, 30);
@@ -105,6 +114,10 @@ public class Shop {
         spaceMitrailetteEnable.relocate(20, 120);
         spaceMitrailetteDisable.relocate(20, 120);
         spaceMitrailettePoverty.relocate(20, 120);
+        
+        allyEnable.relocate(20, 150);
+        allyDisable.relocate(20, 150);
+        allyPoverty.relocate(20, 150);
         
         shopStage.hide();        
         
@@ -155,6 +168,17 @@ public class Shop {
             }
             
         });
+        
+        buyAlly.setOnAction(new EventHandler<ActionEvent>(){
+            
+            @Override
+            public void handle(ActionEvent event) {
+                Player p = getPlayer();
+                p.removePoints(costAlly);
+                Engine.engine.spawnAlly();
+                refreshShop();
+            }
+        });
     }
     
   
@@ -175,10 +199,15 @@ public class Shop {
         spaceMitrailetteDisable.setVisible(false);
         spaceMitrailettePoverty.setVisible(false);
         
+        allyEnable.setVisible(false);
+        allyDisable.setVisible(false);
+        allyPoverty.setVisible(false);
+        
         buyArmor.setDisable(true);
         buySpaceCannon.setDisable(true);
         buySpaceLaser.setDisable(true);
         buySpaceMitrailette.setDisable(true);
+        buyAlly.setDisable(true);
     }
     private void refreshShop(){
         makeAllInvisible();
@@ -227,6 +256,14 @@ public class Shop {
         }else{
             buySpaceMitrailette.setDisable(false);
             spaceMitrailetteEnable.setVisible(true);
+        }
+        
+        if(p.getPoints() < costAlly){
+            buyAlly.setDisable(true);
+            allyPoverty.setVisible(true);
+        }else{
+            buyAlly.setDisable(false);
+            allyEnable.setVisible(true);
         }
     }
     private Player getPlayer(){

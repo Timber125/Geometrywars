@@ -114,7 +114,7 @@ public abstract class Enemy extends MovingCollidableImage{
             Player pl = (Player) Engine.engine.find(1L, 3);
             Point target = new Point(pl.getX(), pl.getY());
             target = AimingIntelligence.aim(target);
-            Engine.engine.spawnBullet(this.getX(), this.getY(), new Direction(this.getX(), this.getY(), target.X, target.Y), Enemy.class, getGun());
+            Engine.engine.spawnBullet(this.getX(), this.getY(), new Direction(this.getX(), this.getY(), target.X, target.Y), Enemy.class, this);
         }
         
         
@@ -126,13 +126,12 @@ public abstract class Enemy extends MovingCollidableImage{
             Bullet b = (Bullet) other;
             int dmg = b.getDmg();
             if(getHealth() <= dmg) {
-                Engine.engine.grantPoints(points_on_kill);
+                Engine.engine.grantPoints(points_on_kill, ((Bullet) other).getOwnerID());
                 this.kill();
             }else{
                 this.setHealth(this.getHealth() - dmg);
             }
-        }else if(other instanceof Player){
-            Engine.engine.grantPoints(points_on_kill);
+        }else if(other instanceof Ally){
             this.kill();
         }
     }

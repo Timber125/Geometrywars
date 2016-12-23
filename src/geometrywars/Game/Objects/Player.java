@@ -5,6 +5,8 @@
  */
 package geometrywars.Game.Objects;
 
+import geometrywars.Control.InputHandler;
+import geometrywars.Control.MouseHandler;
 import geometrywars.Game.Logics.ArmorBar;
 import geometrywars.Game.Logics.Direction;
 import geometrywars.Game.Logics.HealthBar;
@@ -20,13 +22,13 @@ import geometrywars.Rendering.ViewPane;
  *
  * @author timber
  */
-public class Player extends MovingCollidableImage{
+public class Player extends Ally{
 
-    private static final String imagelocation = "Shuttle1.png";
+    private static final String imagelocation = "Shuttle10.png";
     public static int player_diameter = 40;
     private static final HitBox hitbox = new CircularHitBox(player_diameter);
     
-    
+    public String name;
     
     /*
     
@@ -55,15 +57,31 @@ public class Player extends MovingCollidableImage{
     
     //private Direction dir = new Direction(0.00, 0.00);
     
-    public Player(long ID, long hpID, long armorID, int xPos, int yPos, int xMouse, int yMouse) {
+    public Player(String name, long ID, long hpID, long armorID, int xPos, int yPos, int xMouse, int yMouse) {
         super(ID, hpID, xPos, yPos, hitbox, imagelocation, new Direction(xPos, yPos, xMouse, yMouse));
+        this.name = name;
         this.speed = 5;
         this.setGun(new SpaceCannon());
         armorBar = new ArmorBar(armorID, 25, 100);
         this.addListener(armorBar);
     }
     
-   
+    private InputHandler inputhandler;
+    private MouseHandler mousehandler;
+    
+    public void setControls(InputHandler ih, MouseHandler mh){
+        this.inputhandler = ih;
+        this.mousehandler = mh;
+    }
+    
+    public InputHandler getInputHandler(){
+        return inputhandler;
+    }
+    
+    public MouseHandler getMouseHandler(){
+        return mousehandler;
+    }
+    
     
     @Override
     public void update(ViewPane p) {

@@ -20,44 +20,44 @@ public class SpaceCannon extends Gun{
         this.name = "Space Cannon";
     }
     @Override
-    public Bullet createBullet(long ID, int xPos, int yPos, Direction d){
-        return new SpaceCannonBullet(ID, xPos, yPos, d, this.dmg);
+    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, long ownerID){
+        return new SpaceCannonBullet(ID, xPos, yPos, d, this.dmg, ownerID);
     }
     @Override
-    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, Collection<Class> friendly){
-        return new SpaceCannonBullet(ID, xPos, yPos, friendly, d, this.dmg);
+    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, Collection<Class> friendly, long ownerID){
+        return new SpaceCannonBullet(ID, xPos, yPos, friendly, d, this.dmg, ownerID);
     }
     @Override
-    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, Class friendly){
-        return new SpaceCannonBullet(ID, xPos, yPos, d, friendly, this.dmg);
+    public Bullet createBullet(long ID, int xPos, int yPos, Direction d, Class friendly, long ownerID){
+        return new SpaceCannonBullet(ID, xPos, yPos, d, friendly, this.dmg, ownerID);
     }
     @Override
-    public Bullet createBullet(long ID, int xPos, int yPos, Collection<Collidable> friendly, Direction d){
-        return new SpaceCannonBullet(ID, xPos, yPos, d, friendly, this.dmg);
+    public Bullet createBullet(long ID, int xPos, int yPos, Collection<Collidable> friendly, Direction d, long ownerID){
+        return new SpaceCannonBullet(ID, xPos, yPos, d, friendly, this.dmg, ownerID);
     }
     @Override
-    public Bullet createBullet(long ID, int xPos, int yPos, Collidable friendly, Direction d){
-        return new SpaceCannonBullet(ID, xPos, yPos, d, friendly, this.dmg);
+    public Bullet createBullet(long ID, int xPos, int yPos, Collidable friendly, Direction d, long ownerID){
+        return new SpaceCannonBullet(ID, xPos, yPos, d, friendly, this.dmg, ownerID);
     }
     
     public class SpaceCannonBullet extends Bullet{
         
         private static final String filename = "Bullet2.png";
         
-        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, int dmg) {
-            super(ID, xPos, yPos, d, dmg, filename);
+        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, int dmg, long ownerID) {
+            super(ID, xPos, yPos, d, dmg, filename, ownerID);
         }
-        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg) {
-            super(ID, xPos, yPos, d, friendly, dmg, filename);
+        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg, long ownerID) {
+            super(ID, xPos, yPos, d, friendly, dmg, filename, ownerID);
         }
-        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg) {
-            super(ID, xPos, yPos, d, friendly, dmg, filename);
+        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg, long ownerID) {
+            super(ID, xPos, yPos, d, friendly, dmg, filename, ownerID);
         }
-        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg) {
-            super(ID, xPos, yPos, d, friendly, dmg, filename);
+        public SpaceCannonBullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg, long ownerID) {
+            super(ID, xPos, yPos, d, friendly, dmg, filename, ownerID);
         }
-        public SpaceCannonBullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg) {
-            super(ID, xPos, yPos, friendly, d, dmg, filename);
+        public SpaceCannonBullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg, long ownerID) {
+            super(ID, xPos, yPos, friendly, d, dmg, filename, ownerID);
         }
         
     }

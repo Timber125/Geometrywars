@@ -28,6 +28,28 @@ import javafx.stage.Stage;
  */
 public class Geometrywars extends Application {
     
+    /* 
+    9 januari analyse
+    Upgrades:
+    
+        -> Server Client systeem
+        -> Meer soorten enemies nee
+        -> Meer soorten "guns" en bullets nee
+        -> Allies in de shop 
+        -> Highscores
+      jan  -> visuele aura's rond kogels & spelers ter duidelijkheid
+      jan  -> explosies bij 'hit'
+        -> Meer levels en meer differentiatie
+        -> Bosses
+      jan  -> Database support
+        
+        -> Impossible difficulty : Aiming intelligence die voorspelt waar speler naartoe gaat
+    
+    */
+    
+    
+    
+    
     @Override
     public void start(Stage primaryStage) {
        IntroMenu menu = new IntroMenu(primaryStage);

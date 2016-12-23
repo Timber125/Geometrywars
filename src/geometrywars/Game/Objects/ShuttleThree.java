@@ -40,7 +40,7 @@ public class ShuttleThree extends Enemy {
     @Override
     public void onCollide(Collidable other){
         if(other instanceof Bullet){
-            Engine.engine.grantPoints(points_on_kill);
+            Engine.engine.grantPoints(points_on_kill, ((Bullet) other).getOwnerID());
             this.kill();
         }
     }

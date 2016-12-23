@@ -47,6 +47,7 @@ public class HealthBar extends Renderable{
     }
     public void setHP(int newHP){
         this.currHP = newHP;
+        if(this.currHP > this.maxHP) this.maxHP = this.currHP;
         refresh();
     }
     public void takeDamage(int dmg){

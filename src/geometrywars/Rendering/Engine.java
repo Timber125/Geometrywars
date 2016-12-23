@@ -18,9 +18,12 @@ import geometrywars.Game.Objects.Bullet;
 import geometrywars.Game.Objects.Enemy;
 import geometrywars.Game.Objects.Gun;
 import geometrywars.Game.Objects.Player;
+import geometrywars.Game.Objects.ShuttleFour;
 import geometrywars.Game.Objects.ShuttleThree;
 import geometrywars.Game.Objects.ShuttleTwo;
 import geometrywars.Game.Shop;
+import geometrywars.PropertyHandler;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -75,7 +78,7 @@ public class Engine {
         // For game:
             levelManager = new LevelManager();
         gamestats = new GameStats();
-        initGameStats();
+        initGameStats(1);
     }
     
     
@@ -110,9 +113,15 @@ public class Engine {
         return null;
     }
 
+    private boolean gameover = false;
     public void gameOver(boolean won) {
+        if(gameover) return;
+        gameover = true;
         String text = (won ? ("Victory!! ") : ("Defeated! "));
-        spawnLabel(RenderLevel.BACKGROUND, 300, 300, text + "You scored " + findPlayer().getPoints() + " points.");
+        spawnLabel(RenderLevel.BACKGROUND, 300, 300, text + "Player 1 scored " + ((Player) find(1L,2)).getPoints() + " points.");
+        if(find(11L) != null){
+            spawnLabel(RenderLevel.BACKGROUND, 300, 400, text + "Player 2 scored " + ((Player) find(11L, 2)).getPoints() + " points.");
+        }
         try {
             // Leave 50 ms to let the engine have one more loop, so health can be updated to zero. 
             // This would otherwise leave some confusion to the player, as he would never be sure he actually hit 0 hitpoins.
@@ -121,6 +130,17 @@ public class Engine {
             Logger.getLogger(Engine.class.getName()).log(Level.SEVERE, null, ex);
         }
         active = false;
+        PropertyHandler ph = new PropertyHandler(new File("highscores.properties"));
+        long now = System.currentTimeMillis();
+        ph.setProperty(""+now + 1, ""+ ((Player)(find(1L))).getPoints());
+        PropertyHandler ph2 = new PropertyHandler(new File("names.properties"));
+        ph2.setProperty(""+now + 1, ""+ ((Player)(find(1L))).name);
+        if(find(11L) != null){
+            ph.setProperty(""+now + 2, ""+ ((Player)(find(11L))).getPoints());
+            ph2.setProperty(""+now + 2, ""+ ((Player)(find(11L))).name);
+        }
+        ph.saveChanges();
+        ph2.saveChanges();
     }
 
     private int difficulty = 0;
@@ -128,6 +148,14 @@ public class Engine {
         this.difficulty = difficulty;
     }
     public int getDifficulty(){return difficulty;}
+
+    public void setP1Controls(InputHandler inputHandler, MouseHandler mouseHandler) {
+        ((Player) find(1L, 2)).setControls(inputHandler, mouseHandler);
+    }
+    public void setP2Controls(InputHandler inputHandler, MouseHandler mouseHandler){
+        ((Player) find(11L, 2)).setControls(inputHandler, mouseHandler);
+    }
+
 
    
     
@@ -148,7 +176,7 @@ public class Engine {
     }
     };
     
-    private long idcounter = 11; // leaves some space for at least 10 static (test) instances e.g. walls, doesnt hurt at the very least. 
+    private long idcounter = 21; // leaves some space for at least 20 static (test) instances e.g. walls, doesnt hurt at the very least. 
     /*
         RESERVED IDSLOTS
     
@@ -157,9 +185,20 @@ public class Engine {
         ID 3L = Label for player1 points.
         ID 4L = Label for player1 health.
         ID 5L = Label for player1 armor.
-        ID 6L = Label for player1 gun (& dmg / bullet) 
-        ID 7L = Label for alltime highscore (wait for database to implement)
-        
+        ID 6L = Label for player1 gun 
+        ID 7L = Label for player1 gundmg
+        ID 8L = Label for player1 gunspeed
+        ID 9L = Label for player1 speed
+    
+        ID 11L = player2
+        ID 13L = Label for player2 points
+        ID 14L = Label for player2 health
+        ID 15L = Label for player2 armor
+        ID 16L = Label for player2 gun 
+        ID 17L = Label for player2 gundmg
+        ID 18L = Label for player2 gunspeed
+        ID 19L = Label for player2 speed
+    
     */
     
     
@@ -174,31 +213,12 @@ public class Engine {
         return view;
     }
     
-    private InputHandler inputhandler;
-    private MouseHandler mousehandler;
+  
     
-    public void setControls(InputHandler ih, MouseHandler mh){
-        this.inputhandler = ih;
-        this.mousehandler = mh;
-    }
-    
-    private Player findPlayer() {
-        Renderable player = find(1L, 2);
-        if(player instanceof Player){
-            Player p1 = (Player) player;
-            System.err.println("player x : " + p1.getX());
-            return p1;
-        }else{
-            System.err.println("[FATAL] ID 1L IS NOT AN INSTANCE OF PLAYER!");
-            System.err.flush();
-            System.exit(2);
-            return null;
-        }
-    }
     
     
     private void actOnInput(Player p1){
-         InputBuffer buff = inputhandler.getBuffer();
+         InputBuffer buff = p1.getInputHandler().getBuffer();
          if(global_debugmode) System.out.println("Moving player in direction [" + buff.toString() + "]");
          p1.setDirection(Direction.create(buff.up, buff.right, buff.down, buff.left));
          if(buff.enter) {
@@ -221,7 +241,7 @@ public class Engine {
              Point player_center = pl.getCenter();
              if(global_debugmode) System.out.println("PLAYER X Y [" + pl.xPos + "] [" + pl.yPos + "]");
              if(global_debugmode) System.out.println("CENTER X Y [" + player_center.X + "] [" + player_center.Y + "]");
-             spawnBullet(player_center.X, player_center.Y, new Direction(player_center.X, player_center.Y, mousehandler.getLocation().sceneX, mousehandler.getLocation().sceneY), Player.class, pl.getGun());
+             spawnBullet(player_center.X, player_center.Y, new Direction(player_center.X, player_center.Y, pl.getMouseHandler().getLocation().sceneX, pl.getMouseHandler().getLocation().sceneY), Player.class, pl);
          }else{
              // DONT SHOOT, WAIT
          }
@@ -254,12 +274,20 @@ public class Engine {
         return new Point(r.nextInt(view.getObjectBounds().X), r.nextInt(view.getObjectBounds().Y));
     }
     private boolean isSafeSpawnCoord(Point p, double minDistance){
-        Player player = findPlayer();
+        Player player = (Player) (find(1L));
         int xp = player.getX();
         int yp = player.getY();
+        double distance2 = minDistance + 2;
+        Player p2 = (Player) (find(11L));
+        if(p2 instanceof Player){
+             int xp2 = p2.getX();
+             int yp2 = p2.getY();
+             distance2 = Math.sqrt(Math.pow(Math.abs(p.X - xp2), 2) + Math.pow(Math.abs(p.Y - yp2), 2));
+             if(distance2 < minDistance) return false;
+        }
         
-        double distance = Math.sqrt(Math.pow(Math.abs(p.X - xp), 2) + Math.pow(Math.abs(p.Y - yp), 2));
-        if(distance > minDistance) return true;
+        double distance1 = Math.sqrt(Math.pow(Math.abs(p.X - xp), 2) + Math.pow(Math.abs(p.Y - yp), 2));
+        if(distance1 > minDistance) return true;
         else return false;
     }
     
@@ -282,7 +310,7 @@ public class Engine {
                         @Override
                         public void run() {
                             long startCycle = System.currentTimeMillis();
-                            Player p = findPlayer();
+                            Player p = (Player) find(1L, 2);
                             actOnInput(p);
                             updateGameStats(p);
                             updateLevelIfNeeded();
@@ -352,7 +380,7 @@ public class Engine {
         // TESTING
         if(levelManager instanceof EnginePerformanceTest){
             System.out.println("Engine handling [" + objectcount + "] moving objects at a capped [" + (1000 / fps_cycleTime) + "] / [60] frames per second.");
-            findPlayer().setHealth(10000); // virtually Godmode
+            ((Player) find(1L, 2)).setHealth(10000); // virtually Godmode
         }
         
         if(enemyCount == 0) no_enemies = true;
@@ -437,6 +465,15 @@ public class Engine {
     /*
         Called from outer sources
     */
+    
+    public void spawnAlly() {
+                long nextID = getNextIdSafely();
+                Point p = getSafeSpawnCoord(150);
+                long hpID = getNextIdSafely();
+                ShuttleFour en = new ShuttleFour(nextID, hpID, p.X, p.Y);
+                addToRenderLevel(RenderLevel.COLLIDE, nextID, en);
+                view.getChildren().add(en.getView());
+    }
     public void spawnCollidableCircleDummy(int xPos, int yPos){
         long nextID = getNextIdSafely();
         MovingCollidableImage ci = new MovingCollidableImage(nextID, xPos, yPos, new CircularHitBox(40), "Shuttle1.png", new Direction());
@@ -444,27 +481,27 @@ public class Engine {
         addToRenderLevel(RenderLevel.COLLIDE, nextID, ci);
         view.getChildren().add(ci.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d, Gun spawner){
+    public void spawnBullet(int xPos, int yPos, Direction d, MovingCollidableImage spawner){
         long nextID = getNextIdSafely();
-        Bullet b = spawner.createBullet(nextID, xPos, yPos, d);//new Bullet(nextID, xPos, yPos, d, spawner.getDmg());
+        Bullet b = spawner.getGun().createBullet(nextID, xPos, yPos, d, spawner.ID);//new Bullet(nextID, xPos, yPos, d, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d, Collidable friendly, Gun spawner){
+    public void spawnBullet(int xPos, int yPos, Direction d, Collidable friendly, MovingCollidableImage spawner){
         long nextID = getNextIdSafely();
-        Bullet b = spawner.createBullet(nextID, xPos, yPos, friendly, d);//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        Bullet b = spawner.getGun().createBullet(nextID, xPos, yPos, friendly, d, spawner.ID);//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d, Collection<Collidable> friendly, Gun spawner){
+    public void spawnBullet(int xPos, int yPos, Direction d, Collection<Collidable> friendly, MovingCollidableImage spawner){
         long nextID = getNextIdSafely();
-        Bullet b = spawner.createBullet(nextID, xPos, yPos, friendly, d);//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        Bullet b = spawner.getGun().createBullet(nextID, xPos, yPos, friendly, d, spawner.ID);//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
-    public void spawnBullet(int xPos, int yPos, Direction d, Class friendly, Gun spawner){
+    public void spawnBullet(int xPos, int yPos, Direction d, Class friendly, MovingCollidableImage spawner){
         long nextID = getNextIdSafely();
-        Bullet b = spawner.createBullet(nextID, xPos, yPos, d, friendly);//, xPos, yPos, d)//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
+        Bullet b = spawner.getGun().createBullet(nextID, xPos, yPos, d, friendly, spawner.ID);//, xPos, yPos, d)//new Bullet(nextID, xPos, yPos, d, friendly, spawner.getDmg());
         addToRenderLevel(RenderLevel.COLLIDE, nextID, b);
         view.getChildren().add(b.getView());
     }
@@ -495,13 +532,21 @@ public class Engine {
         view.getChildren().add(ri.getView());
     }
     
-    public void spawnPlayer1(){
+    public void spawnPlayer1(String name){
         Long PLAYER1_ID = 1L;
         Long PlayerHP = getNextIdSafely();
         Long PlayerArmor = getNextIdSafely();
-        Player p1 = new Player(PLAYER1_ID, PlayerHP, PlayerArmor, 300, 300, 300, 300);
+        Player p1 = new Player(name, PLAYER1_ID, PlayerHP, PlayerArmor, 300, 300, 300, 300);
         Engine.engine.addToRenderLevel(RenderLevel.COLLIDE, PLAYER1_ID, p1);
         view.getChildren().add(p1.getView());
+    }
+    public void spawnPlayer2(String name){
+        Long PLAYER2_ID = 11L;
+        Long PlayerHP = getNextIdSafely();
+        Long PlayerArmor = getNextIdSafely();
+        Player p2 = new Player(name, PLAYER2_ID, PlayerHP, PlayerArmor, 400, 400, 400, 400);
+        Engine.engine.addToRenderLevel(RenderLevel.COLLIDE, PLAYER2_ID, p2);
+        view.getChildren().add(p2.getView());
     }
     
     public void registerToNoCollide(Long ID, Renderable r){
@@ -537,9 +582,9 @@ public class Engine {
         }
     }
 
-    public void grantPoints(int points_on_kill) {
-        Player p = findPlayer();
-        p.addPoints(points_on_kill);
+    public void grantPoints(int points_on_kill, long ID) {
+        if(ID == 1L) ((Player) find(1L,2)).addPoints(points_on_kill);
+        else if(ID == 11L) ((Player) find(11L,2)).addPoints(points_on_kill);
     }
     /* 
         Re-used function to add a given renderable object to a specific render-level. 
@@ -569,7 +614,9 @@ public class Engine {
         }
     }
     
-    private void initGameStats(){
+    private void initGameStats(int players){
+        
+        
         long IDPoints = 3L;
         long IDHealth = 4L;
         long IDArmor = 5L;
@@ -591,13 +638,45 @@ public class Engine {
         view.getChildren().add(gamestats.getP1GunDmg().getView());
         view.getChildren().add(gamestats.getP1GunSpeed().getView());
         view.getChildren().add(gamestats.getP1Speed().getView());
+        
+        if(players == 2){
+        IDPoints = 13L;
+        IDHealth = 14L;
+        IDArmor = 15L;
+        IDGun = 16L;
+        IDGunDmg = 17L;
+        IDGunSpeed = 18L;
+        IDSpeed = 19L;
+        addToRenderLevel(RenderLevel.BACKGROUND, IDPoints, gamestats.getP2Points());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDHealth, gamestats.getP2Health());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDArmor, gamestats.getP2Armor());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDGun, gamestats.getP2Gun());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDGunDmg, gamestats.getP2GunDmg());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDGunSpeed, gamestats.getP2GunSpeed());
+        addToRenderLevel(RenderLevel.BACKGROUND, IDSpeed, gamestats.getP2Speed());
+        view.getChildren().add(gamestats.getP2Points().getView());
+        view.getChildren().add(gamestats.getP2Health().getView());
+        view.getChildren().add(gamestats.getP2Armor().getView());
+        view.getChildren().add(gamestats.getP2Gun().getView());
+        view.getChildren().add(gamestats.getP2GunDmg().getView());
+        view.getChildren().add(gamestats.getP2GunSpeed().getView());
+        view.getChildren().add(gamestats.getP2Speed().getView());
+        }
     }
     private void updateGameStats(Player p) {
+        if(p.ID == 1L){
         gamestats.updateP1Points(p.getPoints());
         gamestats.updateP1Health(p.getHealth());
         gamestats.updateP1Armor(p.getArmor());
         gamestats.updateP1Gun(p.getGun().getName());
         gamestats.updateP1GunDmg(p.getGun().getDmg());
+        }else if(p.ID == 11L){
+        gamestats.updateP2Points(p.getPoints());
+        gamestats.updateP2Health(p.getHealth());
+        gamestats.updateP2Armor(p.getArmor());
+        gamestats.updateP2Gun(p.getGun().getName());
+        gamestats.updateP2GunDmg(p.getGun().getDmg());   
+        }
     }
     
     private void updateLevelIfNeeded() {

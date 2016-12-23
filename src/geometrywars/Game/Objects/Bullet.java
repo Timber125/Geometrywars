@@ -24,6 +24,7 @@ public class Bullet extends MovingCollidableImage{
     public static final int size = 7;
     public final int bullet_speed = 7;
     private int dmg = 0;
+    private long ownerID;
     public int getDmg(){
         return dmg;
     }
@@ -31,71 +32,85 @@ public class Bullet extends MovingCollidableImage{
     private HashMap<Long, Collidable> friendly = new HashMap<>();
     private ArrayList<Class> friendlyClasses = new ArrayList<>();
     
-    public Bullet(long ID, int xPos, int yPos, Direction d, int dmg) {
+    public Bullet(long ID, int xPos, int yPos, Direction d, int dmg, long ownerID) {
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
     
-    public Bullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg) {
+    public Bullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg, long ownerID) {
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.friendly.put(friendly.ID, friendly);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
     
-    public Bullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg) {
+    public Bullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg, long ownerID) {
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         for(Collidable c : friendly){
             this.friendly.put(c.ID, c);
         }
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
-    public Bullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg){
+    public Bullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg, long ownerID){
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.friendlyClasses.add(friendly);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
-    public Bullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg){
+    public Bullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg, long ownerID){
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.friendlyClasses.addAll(friendly);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
-    public Bullet(long ID, int xPos, int yPos, Direction d, int dmg, String filename) {
+    public Bullet(long ID, int xPos, int yPos, Direction d, int dmg, String filename, long ownerID) {
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
     
-    public Bullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg, String filename) {
+    public Bullet(long ID, int xPos, int yPos, Direction d, Collidable friendly, int dmg, String filename, long ownerID) {
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.friendly.put(friendly.ID, friendly);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
     
-    public Bullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg, String filename) {
+    public Bullet(long ID, int xPos, int yPos, Direction d, Collection<Collidable> friendly, int dmg, String filename, long ownerID) {
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         for(Collidable c : friendly){
             this.friendly.put(c.ID, c);
         }
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
-    public Bullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg, String filename){
+    public Bullet(long ID, int xPos, int yPos, Direction d, Class friendly, int dmg, String filename, long ownerID){
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.friendlyClasses.add(friendly);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
     }
-    public Bullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg, String filename){
+    public Bullet(long ID, int xPos, int yPos, Collection<Class> friendly, Direction d, int dmg, String filename, long ownerID){
         super(ID, xPos, yPos, new RectangularHitBox(size, size), filename, d);
         this.friendlyClasses.addAll(friendly);
         this.speed = bullet_speed;
         this.dmg = dmg;
+        this.ownerID = ownerID;
+    }
+    
+    public long getOwnerID(){
+        return ownerID;
     }
     
     public boolean isfriendly(Collidable c){
